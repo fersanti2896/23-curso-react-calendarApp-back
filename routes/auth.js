@@ -7,10 +7,8 @@ const router = Router();
     host + /api/auth
 */
 
-router.post('/new', crearUsuario);
-
-router.post('/', loginUsuario);
-
-router.get('/renew', renovarToken);
+router.post( '/new', crearUsuario );
+router.post( '/', loginUsuario );
+router.get( '/renew', renovarToken );
 
 module.exports = router;
