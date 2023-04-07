@@ -6,8 +6,7 @@ const UsuarioModel = require('../models/UsuarioModel');
 
 const crearUsuario = async(req, res = response) => {
     const { email, password } = req.body;
-    try {
-        
+    try {  
         let usuario = await UsuarioModel.findOne({ email });
         
         if( usuario ) {
@@ -39,15 +38,40 @@ const crearUsuario = async(req, res = response) => {
     
 }
 
-const loginUsuario = (req, res = response) => {
+const loginUsuario = async(req, res = response) => {
     const { email, password } = req.body;
 
-    res.status(201).json({
-        ok: true, 
-        msg: 'Login',
-        email,
-        password
-    });
+    try {
+        let usuario = await UsuarioModel.findOne({ email });
+        
+        if( !usuario ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El usuario no existe con ese email.'
+            });
+        }
+
+        /* Confirmando las contraseñas */
+        const validPassword = bcrypt.compareSync( password, usuario.password );
+        
+        if( !validPassword ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Password incorrecto.'
+            });
+        }
+
+        res.status(201).json({
+            ok: true, 
+            uid: usuario.id,
+            name: usuario.name
+        });
+    } catch (error) {
+        res.status(500).json({
+            ok: false,
+            msg: 'Por favor hable con el administrador'
+        })
+    }
 }
 
 const renovarToken = (req, res = response) => {
