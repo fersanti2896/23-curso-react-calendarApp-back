@@ -83,10 +83,15 @@ const loginUsuario = async(req, res = response) => {
     }
 }
 
-const renovarToken = (req, res = response) => {
+const renovarToken = async(req, res = response) => {
+    const { uid, name } = req;
+
+    /* Generando JWT */
+    const token = await generarJWT(uid, name);
+
     res.json({
-        ok: true, 
-        msg: 'Renew'
+        ok: true,
+        token
     })
 }
 
