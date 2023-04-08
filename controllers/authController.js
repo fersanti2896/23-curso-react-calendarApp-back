@@ -2,6 +2,7 @@
 const { response } = require('express');
 const bcrypt = require('bcryptjs');
 const UsuarioModel = require('../models/UsuarioModel');
+const { generarJWT } = require('../helpers/jwt');
 
 
 const crearUsuario = async(req, res = response) => {
@@ -12,7 +13,7 @@ const crearUsuario = async(req, res = response) => {
         if( usuario ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'Existe el correo en un usuario.'
+                msg: 'Ya existe un usuario con ese email.'
             });
         }
         
@@ -24,10 +25,14 @@ const crearUsuario = async(req, res = response) => {
 
         await usuario.save();
 
+        /* Generando JWT */
+        const token = await generarJWT(usuario.id, usuario.name);
+
         res.status(201).json({
             ok: true, 
             uid: usuario.id,
-            name: usuario.name
+            name: usuario.name,
+            token
         });
     } catch (error) {
         res.status(500).json({
@@ -47,7 +52,7 @@ const loginUsuario = async(req, res = response) => {
         if( !usuario ) {
             return res.status(400).json({
                 ok: false,
-                msg: 'El usuario no existe con ese email.'
+                msg: 'Ya existe un usuario con ese email.'
             });
         }
 
@@ -61,10 +66,14 @@ const loginUsuario = async(req, res = response) => {
             });
         }
 
+        /* Generando JWT */
+        const token = await generarJWT(usuario.id, usuario.name);
+
         res.status(201).json({
             ok: true, 
             uid: usuario.id,
-            name: usuario.name
+            name: usuario.name,
+            token
         });
     } catch (error) {
         res.status(500).json({
